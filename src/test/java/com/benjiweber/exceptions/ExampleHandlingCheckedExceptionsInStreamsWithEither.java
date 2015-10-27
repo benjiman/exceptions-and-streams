@@ -14,10 +14,10 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
     public void unchecked_example() {
         List<Integer> customerAges =
             Stream.of("Bob", "Bill")
-                .map(result(this::findCustomerByName))
-                .peek(success(this::sendEmailUpdateTo))
-                .map(success(Customer::age))
-                .map(failure(NoCustomerWithThatName.class, error -> {
+                .map(exceptional(this::findCustomerByName))
+                .peek(onSuccess(this::sendEmailUpdateTo))
+                .map(onSuccess(Customer::age))
+                .map(onFailure(NoCustomerWithThatName.class, error -> {
                     log("Customer not found :(");
                     return -1;
                 }))
