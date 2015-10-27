@@ -1,5 +1,6 @@
 package com.benjiweber.exceptions;
 
+import com.benjiweber.exceptions.handlingstrategies.either.Either;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
 
     @Test
-    public void unchecked_example() {
+    public void handling_exceptions_with_either_example() {
         List<Integer> customerAges =
             Stream.of("Bob", "Bill")
                 .map(exceptional(this::findCustomerByName))
@@ -25,6 +26,13 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
                     throw new RuntimeException(ex);
                 }))
                 .collect(toList());
+    }
+
+    @Test
+    public void creating_stream_of_eithers() {
+        Stream<Either<Customer, CustomerNotFound>> customers =
+            Stream.of("Bob", "Bill")
+                .map(exceptional(this::findCustomerByName));
     }
 
     static class UnexpectedException extends RuntimeException {}

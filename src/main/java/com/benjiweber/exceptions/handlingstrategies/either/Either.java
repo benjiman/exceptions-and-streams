@@ -4,7 +4,7 @@ package com.benjiweber.exceptions.handlingstrategies.either;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Error.error;
+import static com.benjiweber.exceptions.handlingstrategies.either.Either.Failure.failure;
 import static com.benjiweber.exceptions.handlingstrategies.either.Either.Success.success;
 
 public interface Either<T,E extends Exception> {
@@ -15,9 +15,10 @@ public interface Either<T,E extends Exception> {
             return () -> value;
         }
     }
-    interface Error<T, E extends Exception> extends Either<T,E> {
-        E error();
-        static <T,R, E extends Exception> Error<T,E> error(E exception) {
+
+    interface Failure<T, E extends Exception> extends Either<T,E> {
+        E reason();
+        static <T, E extends Exception> Failure<T,E> failure(E exception) {
             return () -> exception;
         }
     }
@@ -26,7 +27,7 @@ public interface Either<T,E extends Exception> {
         return result instanceof Success;
     }
     static <T,E extends Exception> boolean isError(Either<T, E> result) {
-        return result instanceof Error;
+        return result instanceof Failure;
     }
 
     default <R> Either<R,E> map(Function<T,R> mapper) {
@@ -34,12 +35,12 @@ public interface Either<T,E extends Exception> {
             T input = ((Success<T, E>) this).result();
             return success(mapper.apply(input));
         } else {
-            return error(((Error<T,E>)this).error());
+            return failure(((Failure<T,E>)this).reason());
         }
     }
 
     default Either<T,E> orElseIf(Class<? extends E> exception, Supplier<T> replacementValue) {
-        if (this instanceof Error) {
+        if (this instanceof Failure) {
             return success(replacementValue.get());
         } else {
             return success(((Success<T,E>)this).result());
@@ -47,7 +48,7 @@ public interface Either<T,E extends Exception> {
     }
 
     default T orElseThrow(Supplier<? extends RuntimeException> e) {
-        if (this instanceof Error) {
+        if (this instanceof Failure) {
             throw e.get();
         }
         return ((Success<T,E>)this).result();
