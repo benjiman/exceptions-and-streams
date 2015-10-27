@@ -7,15 +7,16 @@ import java.util.function.Function;
 
 public class Optionalise {
 
-    public static <T,R,E extends Exception> Function<T,Optional<R>> optionalise(ExceptionalFunction<T,R,E> originalFunction) {
-        return input -> {
-            try {
-                return Optional.ofNullable(
+    public static <T,R,E extends Exception>
+        Function<T,Optional<R>> optionalise(ExceptionalFunction<T,R,E> originalFunction) {
+            return input -> {
+                try {
+                    return Optional.ofNullable(
                         originalFunction.apply(input)
-                );
-            } catch (Exception e) {
-                return Optional.empty();
-            }
-        };
+                    );
+                } catch (Exception e) {
+                    return Optional.empty();
+                }
+            };
     }
 }

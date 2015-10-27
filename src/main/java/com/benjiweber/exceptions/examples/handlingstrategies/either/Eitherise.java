@@ -2,6 +2,7 @@ package com.benjiweber.exceptions.examples.handlingstrategies.either;
 
 import com.benjiweber.exceptions.examples.functions.ExceptionalFunction;
 import com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Failure;
+import com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Success;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -26,8 +27,8 @@ public class Eitherise {
     public static <T, E extends Exception, R>
         Function<Either<T,E>, Either<R,E>> onSuccess(Function<T,R> originalFunction) {
             return input -> {
-                if (input instanceof Either.Success) {
-                    Either.Success<T,E> success = (Either.Success<T, E>) input;
+                if (input instanceof Success) {
+                    Success<T,E> success = (Success<T, E>) input;
                     return success(originalFunction.apply(success.result()));
                 }
                 return Failure.failure(((Failure<T,E>)input).reason());
@@ -38,8 +39,8 @@ public class Eitherise {
     public static <T, E extends Exception>
         Consumer<Either<T,E>> onSuccess(Consumer<T> originalFunction) {
             return input -> {
-                if (input instanceof Either.Success) {
-                    Either.Success<T,E> success = (Either.Success<T, E>) input;
+                if (input instanceof Success) {
+                    Success<T,E> success = (Success<T, E>) input;
                     originalFunction.accept(success.result());
                 }
             };
@@ -49,8 +50,8 @@ public class Eitherise {
     public static <T, E extends Exception>
         Function<Either<T,E>,T> allOtherFailures(Consumer<E> errorHandler) {
             return result -> {
-                if (result instanceof Either.Success) {
-                    Either.Success<T, E> success = (Either.Success<T, E>) result;
+                if (result instanceof Success) {
+                    Success<T, E> success = (Success<T, E>) result;
                     return success.result();
                 }
                 Failure<T,E> failure = (Failure<T,E>) result;
@@ -66,7 +67,7 @@ public class Eitherise {
             Class<? extends E> errorType,
             Function<E,T> errorHandler) {
                 return result -> {
-                    if (result instanceof Either.Success) {
+                    if (result instanceof Success) {
                         return result;
                     }
                     Failure<T,E> failure = (Failure<T,E>) result;
