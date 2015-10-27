@@ -17,7 +17,7 @@ public class Eitherise {
             return input -> {
                 try {
                     return success(originalFunction.apply(input));
-                } catch (RuntimeException | java.lang.Error e) {
+                } catch (RuntimeException | Error e) {
                     throw e;
                 } catch (Exception e) {
                     return failure((E)e);
