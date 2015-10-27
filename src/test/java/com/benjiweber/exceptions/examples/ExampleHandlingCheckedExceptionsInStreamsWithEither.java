@@ -1,12 +1,12 @@
-package com.benjiweber.exceptions;
+package com.benjiweber.exceptions.examples;
 
-import com.benjiweber.exceptions.handlingstrategies.either.Either;
+import com.benjiweber.exceptions.examples.handlingstrategies.either.Either;
+import com.benjiweber.exceptions.examples.handlingstrategies.either.Eitherise;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.benjiweber.exceptions.handlingstrategies.either.Eitherise.*;
 import static java.util.stream.Collectors.toList;
 
 public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
@@ -15,14 +15,14 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
     public void handling_exceptions_with_either_example() {
         List<Integer> customerAges =
             Stream.of("Bob", "Bill")
-                .map(exceptional(this::findCustomerByName))
-                .peek(onSuccess(this::sendEmailUpdateTo))
-                .map(onSuccess(Customer::age))
-                .map(onFailure(NoCustomerWithThatName.class, error -> {
+                .map(Eitherise.exceptional(this::findCustomerByName))
+                .peek(Eitherise.onSuccess(this::sendEmailUpdateTo))
+                .map(Eitherise.onSuccess(Customer::age))
+                .map(Eitherise.onFailure(NoCustomerWithThatName.class, error -> {
                     log("Customer not found :(");
                     return -1;
                 }))
-                .map(allOtherFailures(ex -> {
+                .map(Eitherise.allOtherFailures(ex -> {
                     throw new RuntimeException(ex);
                 }))
                 .collect(toList());
@@ -32,7 +32,7 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
     public void creating_stream_of_eithers() {
         Stream<Either<Customer, CustomerNotFound>> customers =
             Stream.of("Bob", "Bill")
-                .map(exceptional(this::findCustomerByName));
+                .map(Eitherise.exceptional(this::findCustomerByName));
     }
 
     static class UnexpectedException extends RuntimeException {}

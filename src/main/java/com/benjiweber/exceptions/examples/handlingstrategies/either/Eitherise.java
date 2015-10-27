@@ -1,14 +1,9 @@
-package com.benjiweber.exceptions.handlingstrategies.either;
+package com.benjiweber.exceptions.examples.handlingstrategies.either;
 
-import com.benjiweber.exceptions.functions.ExceptionalFunction;
-import com.benjiweber.exceptions.handlingstrategies.either.Either.Failure;
-import com.benjiweber.exceptions.handlingstrategies.either.Either.Success;
+import com.benjiweber.exceptions.examples.functions.ExceptionalFunction;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Failure.failure;
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Success.success;
 
 public class Eitherise {
 
@@ -16,11 +11,11 @@ public class Eitherise {
         Function<T,Either<R,E>> exceptional(ExceptionalFunction<T,R,E> originalFunction) {
             return input -> {
                 try {
-                    return success(originalFunction.apply(input));
+                    return Either.Success.success(originalFunction.apply(input));
                 } catch (RuntimeException | Error e) {
                     throw e;
                 } catch (Exception e) {
-                    return failure((E)e);
+                    return Either.Failure.failure((E)e);
                 }
             };
     }
@@ -28,11 +23,11 @@ public class Eitherise {
     public static <T, E extends Exception, R>
         Function<Either<T,E>, Either<R,E>> onSuccess(Function<T,R> originalFunction) {
             return input -> {
-                if (input instanceof Success) {
-                    Success<T,E> success = (Success<T, E>) input;
-                    return success(originalFunction.apply(success.result()));
+                if (input instanceof Either.Success) {
+                    Either.Success<T,E> success = (Either.Success<T, E>) input;
+                    return Either.Success.success(originalFunction.apply(success.result()));
                 }
-                return failure(((Failure<T,E>)input).reason());
+                return Either.Failure.failure(((Either.Failure<T,E>)input).reason());
             };
     }
 
@@ -40,8 +35,8 @@ public class Eitherise {
     public static <T, E extends Exception>
         Consumer<Either<T,E>> onSuccess(Consumer<T> originalFunction) {
             return input -> {
-                if (input instanceof Success) {
-                    Success<T,E> success = (Success<T, E>) input;
+                if (input instanceof Either.Success) {
+                    Either.Success<T,E> success = (Either.Success<T, E>) input;
                     originalFunction.accept(success.result());
                 }
             };
@@ -51,11 +46,11 @@ public class Eitherise {
     public static <T, E extends Exception>
         Function<Either<T,E>,T> allOtherFailures(Consumer<E> errorHandler) {
             return result -> {
-                if (result instanceof Success) {
-                    Success<T, E> success = (Success<T, E>) result;
+                if (result instanceof Either.Success) {
+                    Either.Success<T, E> success = (Either.Success<T, E>) result;
                     return success.result();
                 }
-                Failure<T,E> failure = (Failure<T,E>) result;
+                Either.Failure<T,E> failure = (Either.Failure<T,E>) result;
                 errorHandler.accept(failure.reason());
 
                 throw new IllegalStateException(failure.reason());
@@ -68,12 +63,12 @@ public class Eitherise {
             Class<? extends E> errorType,
             Function<E,T> errorHandler) {
                 return result -> {
-                    if (result instanceof Success) {
+                    if (result instanceof Either.Success) {
                         return result;
                     }
-                    Failure<T,E> failure = (Failure<T,E>) result;
+                    Either.Failure<T,E> failure = (Either.Failure<T,E>) result;
                     if (failure.reason().getClass().isAssignableFrom(errorType)) {
-                        return success(errorHandler.apply(failure.reason()));
+                        return Either.Success.success(errorHandler.apply(failure.reason()));
                     }
                     return failure;
                 };

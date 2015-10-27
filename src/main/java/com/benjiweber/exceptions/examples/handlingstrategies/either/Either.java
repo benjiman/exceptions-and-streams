@@ -1,11 +1,11 @@
-package com.benjiweber.exceptions.handlingstrategies.either;
+package com.benjiweber.exceptions.examples.handlingstrategies.either;
 
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Failure.failure;
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Success.success;
+import static com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Failure.failure;
+import static com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Success.success;
 
 public interface Either<T,E extends Exception> {
 

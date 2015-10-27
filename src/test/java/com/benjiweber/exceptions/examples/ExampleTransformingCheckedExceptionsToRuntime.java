@@ -1,24 +1,20 @@
-package com.benjiweber.exceptions;
+package com.benjiweber.exceptions.examples;
 
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.benjiweber.exceptions.handlingstrategies.optional.Optionalise.optionalise;
-import static com.benjiweber.exceptions.handlingstrategies.runtime.Unchecked.unchecked;
+import static com.benjiweber.exceptions.examples.handlingstrategies.runtime.Unchecked.unchecked;
 import static java.util.stream.Collectors.toList;
 
-public class ExampleTransformingCheckedExceptionsToOptional {
+public class ExampleTransformingCheckedExceptionsToRuntime {
 
     @Test
-    public void optionalise_example() {
+    public void unchecked_example() {
         List<Integer> ages =
             Stream.of("Bob","Bill")
-                .map(optionalise(this::findCustomerByName))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(unchecked(this::findCustomerByName))
                 .peek(this::sendEmailUpdateTo)
                 .map(Customer::age)
                 .collect(toList());

@@ -1,6 +1,6 @@
-package com.benjiweber.exceptions.handlingstrategies.optional;
+package com.benjiweber.exceptions.examples.handlingstrategies.optional;
 
-import com.benjiweber.exceptions.functions.ExceptionalFunction;
+import com.benjiweber.exceptions.examples.functions.ExceptionalFunction;
 
 import java.util.Optional;
 import java.util.function.Function;

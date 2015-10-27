@@ -1,9 +1,9 @@
-package com.benjiweber.exceptions;
+package com.benjiweber.exceptions.examples;
 
-import com.benjiweber.exceptions.handlingstrategies.either.Either;
+import com.benjiweber.exceptions.examples.handlingstrategies.either.Either;
 import org.junit.Test;
 
-import static com.benjiweber.exceptions.handlingstrategies.either.Either.Failure.failure;
+import static com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Failure.failure;
 
 public class ExampleReturningEither {
 
