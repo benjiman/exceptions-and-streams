@@ -1,9 +1,12 @@
 package com.benjiweber.exceptions.examples.handlingstrategies.either;
 
 import com.benjiweber.exceptions.examples.functions.ExceptionalFunction;
+import com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Failure;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Success.success;
 
 public class Eitherise {
 
@@ -11,11 +14,11 @@ public class Eitherise {
         Function<T,Either<R,E>> exceptional(ExceptionalFunction<T,R,E> originalFunction) {
             return input -> {
                 try {
-                    return Either.Success.success(originalFunction.apply(input));
+                    return success(originalFunction.apply(input));
                 } catch (RuntimeException | Error e) {
                     throw e;
                 } catch (Exception e) {
-                    return Either.Failure.failure((E)e);
+                    return Failure.failure((E)e);
                 }
             };
     }
@@ -25,9 +28,9 @@ public class Eitherise {
             return input -> {
                 if (input instanceof Either.Success) {
                     Either.Success<T,E> success = (Either.Success<T, E>) input;
-                    return Either.Success.success(originalFunction.apply(success.result()));
+                    return success(originalFunction.apply(success.result()));
                 }
-                return Either.Failure.failure(((Either.Failure<T,E>)input).reason());
+                return Failure.failure(((Failure<T,E>)input).reason());
             };
     }
 
@@ -50,7 +53,7 @@ public class Eitherise {
                     Either.Success<T, E> success = (Either.Success<T, E>) result;
                     return success.result();
                 }
-                Either.Failure<T,E> failure = (Either.Failure<T,E>) result;
+                Failure<T,E> failure = (Failure<T,E>) result;
                 errorHandler.accept(failure.reason());
 
                 throw new IllegalStateException(failure.reason());
@@ -66,9 +69,9 @@ public class Eitherise {
                     if (result instanceof Either.Success) {
                         return result;
                     }
-                    Either.Failure<T,E> failure = (Either.Failure<T,E>) result;
-                    if (failure.reason().getClass().isAssignableFrom(errorType)) {
-                        return Either.Success.success(errorHandler.apply(failure.reason()));
+                    Failure<T,E> failure = (Failure<T,E>) result;
+                    if (errorType.isAssignableFrom(failure.reason().getClass())) {
+                        return success(errorHandler.apply(failure.reason()));
                     }
                     return failure;
                 };

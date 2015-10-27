@@ -23,11 +23,11 @@ public interface Either<T,E extends Exception> {
         }
     }
 
-    static <T,E extends Exception> boolean isSuccess(Either<T, E> result) {
-        return result instanceof Success;
+    default boolean isSuccess() {
+        return this instanceof Success;
     }
-    static <T,E extends Exception> boolean isError(Either<T, E> result) {
-        return result instanceof Failure;
+    default boolean isFailure() {
+        return this instanceof Failure;
     }
 
     default <R> Either<R,E> map(Function<T,R> mapper) {
