@@ -34,6 +34,8 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
 
     @Test
     public void handling_exceptions_with_either_where_example() {
+
+
         List<Integer> customerValue =
             Stream.of("Bob", "Bill")
                 .map(exceptional(this::findCustomerByName))
@@ -47,6 +49,9 @@ public class ExampleHandlingCheckedExceptionsInStreamsWithEither {
                     throw new RuntimeException(ex);
                 }))
                 .collect(toList());
+
+
+
     }
 
     @Test

@@ -42,14 +42,14 @@ public class Eitherise {
         Function<Either<T,E2>, Either<R,E>> onSuccessTry(ExceptionalFunction<T,R,E3> originalFunction) {
             return input -> {
                 if (input instanceof Success) {
-                    Success<T,E2> success = (Success<T, E2>) input;
-                    Either<R, E3> result = exceptional(originalFunction).apply(success.result());
-                    if (result.isFailure()) {
-                        Failure<R, E3> failure = (Failure<R, E3>) result;
-                        return failure(failure.reason());
+                    Success<T,E2> success = (Success<T,E2>) input;
+                    try {
+                        return success(originalFunction.apply(success.result()));
+                    } catch (RuntimeException | Error e) {
+                        throw e;
+                    } catch (Exception e) {
+                        return failure((E)e);
                     }
-                    Success<R,E3> finalResult = (Success<R,E3>) result;
-                    return success(finalResult.result());
                 }
                 return failure(((Failure<T,E>)input).reason());
             };
