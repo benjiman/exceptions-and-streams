@@ -1,5 +1,6 @@
 package com.benjiweber.exceptions.examples.handlingstrategies.either;
 
+import com.benjiweber.exceptions.examples.functions.ExceptionalConsumer;
 import com.benjiweber.exceptions.examples.handlingstrategies.either.Either.Failure;
 import org.junit.Test;
 
@@ -46,6 +47,28 @@ public class EitheriseTest {
     }
 
     @Test
+    public void onSuccessTry_should_ignore_error() {
+        Either<String, ACheckedException> result = exceptional(this::operationThatThrows).apply("Throw");
+        Function<Either<String, ACheckedException>, Either<String, Exception>> f =
+                onSuccessTry((String s) -> { throw new CheckedAssertionException("Should not have been invoked"); });
+        Either<String, Exception> finalResult = f.apply(result);
+        assertTrue(finalResult.isFailure());
+        assertTrue(((Failure<String,Exception>)finalResult).reason() instanceof ACheckedException);
+    }
+
+    @Test
+    public void onSuccessTry_should_transform_success() {
+        Either<String, ACheckedException> result = exceptional(this::operationThatThrows).apply("DoNotThrow");
+        Function<Either<String, ACheckedException>, Either<String, Exception>> f =
+            onSuccessTry((String s) -> {
+                if (false) throw new CheckedAssertionException("Should not be thrown");
+                return s.toLowerCase();
+            });
+        Either<String, Exception> finalResult = f.apply(result);
+        assertEquals("successfulresult", finalResult.orElseThrow(IllegalStateException::new));
+    }
+
+    @Test
     public void onSuccess_consumer_should_ignore_error() {
         Either<String, ACheckedException> result = exceptional(this::operationThatThrows).apply("Throw");
         Consumer<Either<String, ACheckedException>> f =
@@ -58,6 +81,28 @@ public class EitheriseTest {
         Either<String, ACheckedException> result = exceptional(this::operationThatThrows).apply("DoNotThrow");
         Consumer<Either<String, ACheckedException>> f =
                 onSuccess((Consumer<String>)s -> { throw new ConsumerCalled(); });
+        f.accept(result);
+    }
+
+    @Test
+    public void onSuccessTry_consumer_should_ignore_error() {
+        Either<String, Exception> result = Eitherise.<String, String, Exception>exceptional(this::operationThatThrows).apply("Throw");
+        Consumer<Either<String, Exception>> f =
+                Eitherise.<String,Exception,CheckedAssertionException>onSuccessTry((ExceptionalConsumer<String, CheckedAssertionException>) s -> { throw new CheckedAssertionException("Should not have been invoked"); });
+        f.accept(result);
+    }
+
+    @Test(expected=ConsumerCalled.class)
+    public void onSuccessTry_consumer_should_accept_success() {
+        Either<String, Exception> result = Eitherise.<String, String, Exception>exceptional(this::operationThatThrows).apply("DoNotThrow");
+        Consumer<Either<String, Exception>> f =
+                Eitherise.<String,Exception,CheckedConsumerCalled>onSuccessTry(
+                        (ExceptionalConsumer<String, CheckedConsumerCalled>)
+                        s -> {
+                            if (false) throw new CheckedConsumerCalled();
+                            throw new ConsumerCalled();
+                        }
+                );
         f.accept(result);
     }
 
@@ -128,6 +173,7 @@ public class EitheriseTest {
 
 
     static class ConsumerCalled extends RuntimeException {}
+    static class CheckedConsumerCalled extends Exception {}
 
     public String operationThatThrows(String input) throws ACheckedException {
         if (Objects.equals("DoNotThrow", input)) {
@@ -141,5 +187,11 @@ public class EitheriseTest {
     public static class ACheckedException extends Exception {}
     public static class NotThrownException extends ACheckedException {}
     public static class SubtypeOfACheckedException extends ACheckedException {}
+
+    public static class CheckedAssertionException extends Exception {
+        public CheckedAssertionException(String message) {
+            super(message);
+        }
+    }
 
 }
